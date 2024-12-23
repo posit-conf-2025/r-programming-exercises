@@ -88,20 +88,6 @@ penguins_local |>
   dpurrr_to_tibble() |>
   print()
 
-dpurrr_counter <- function(.d) {
-  .d |>
-    dpurrr_summarise(
-      \(acc, d) list(count = acc$count + 1),
-      .init = list(count = 0)
-    )
-}
-
-penguins_local |>
-  dpurrr_to_list() |>
-  dpurrr_counter() |>
-  dpurrr_to_tibble() |>
-  print()
-
 # extract the reducer-function to make things more concise
 body_mass_g_min_max <- function(acc, d) {
   list(
@@ -122,39 +108,49 @@ penguins_local |>
 #' @return named list of transposed data frames, names: values of split variable
 dpurrr_split <- function(.d, name) {
 
-  # get unique values of .d[[name]]
-  d_name <- .d |> purrr::map(\(d) d[[name]]) |> unique()
-  names(d_name) <- d_name
+  # named list, names and values are unique values of .d[[name]]
+  d_name <- .d |> purrr::map(\(d) d[[name]]) |> unique() |> purrr::set_names()
 
-  # for each element of name, a collection of .d rows that "contain" the name
+  # for each element, keep rows that "contain" the name
   d_name |>
     purrr::map(\(x) .d |> purrr::keep(\(d) d[[name]] == x))
 }
 
-#' @param .ld named list of transposed data frames
+#' @param .nd named list of transposed data frames
 #' @param name string, name of variable to put into combined list
 #'
 #' @return transposed data frame
-dpurrr_combine <- function(.ld, names_to) {
+dpurrr_combine <- function(.nd, name) {
 
-  .ld |>
-    # for each transformed data frame, set the name
+  .nd |>
+    # for each transposed data frame, set name within
     purrr::imap(
-      function(d, name) {
-        d |> dpurrr_mutate(\(d) list(name) |> purrr::set_names(names_to))
+      function(d, id) {
+        d |> dpurrr_mutate(\(d) list(id) |> purrr::set_names(name))
       }
     ) |>
-    # combine into single transformed data frame
+    # combine into single transposed data frame
     reduce(c)
 }
 
 penguins_local |>
   dpurrr_to_list() |>
   dpurrr_split("species") |>
-  map(\(.d) .d |> dpurrr_summarise(body_mass_g_min_max)) |>
+  map(\(d) d |> dpurrr_summarise(body_mass_g_min_max)) |>
   dpurrr_combine("species") |>
   dpurrr_to_tibble() |>
   print()
+
+#' @param .d unnamed list of named lists, i.e. transposed data frame
+#'
+#' @return transposed data frame with a single column, `count`
+dpurrr_counter <- function(.d) {
+  .d |>
+    dpurrr_summarise(
+      \(acc, d) list(count = acc$count + 1),
+      .init = list(count = 0)
+    )
+}
 
 penguins_local |>
   dpurrr_to_list() |>
