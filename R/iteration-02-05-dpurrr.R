@@ -44,6 +44,7 @@ penguins_local |>
 
 #' @param .d unnamed list of named lists, i.e. transposed data frame
 #' @param mapper function applied to each member of `.d`
+#'
 #' @return unnamed list of named lists, i.e. transposed data frame
 dpurrr_mutate <- function(.d, mapper) {
   # modifyList() used to keep current elements
@@ -60,6 +61,7 @@ penguins_local |>
 #' @param reducer function applied accumulator and to each member of `.d`
 #' @param .init initial value of accumulator, if empty: first element of `.d`
 #' @param ... other arguments passed to `purrr::reduce()`
+#'
 #' @return unnamed list of named lists, i.e. transposed data frame
 dpurrr_summarise <- function(.d, reducer, .init, ...) {
   # wrap result in a list, to return a transposed data frame
@@ -86,6 +88,20 @@ penguins_local |>
   dpurrr_to_tibble() |>
   print()
 
+dpurrr_counter <- function(.d) {
+  .d |>
+    dpurrr_summarise(
+      \(acc, d) list(count = acc$count + 1),
+      .init = list(count = 0)
+    )
+}
+
+penguins_local |>
+  dpurrr_to_list() |>
+  dpurrr_counter() |>
+  dpurrr_to_tibble() |>
+  print()
+
 # extract the reducer-function to make things more concise
 body_mass_g_min_max <- function(acc, d) {
   list(
@@ -102,6 +118,7 @@ penguins_local |>
 
 #' @param .d unnamed list of named lists, i.e. transposed data frame
 #' @param name string, name of variable on which to split
+#'
 #' @return named list of transposed data frames, names: values of split variable
 dpurrr_split <- function(.d, name) {
 
@@ -114,34 +131,36 @@ dpurrr_split <- function(.d, name) {
     purrr::map(\(x) .d |> purrr::keep(\(d) d[[name]] == x))
 }
 
+#' @param .ld named list of transposed data frames
+#' @param name string, name of variable to put into combined list
+#'
+#' @return transposed data frame
+dpurrr_combine <- function(.ld, names_to) {
+
+  .ld |>
+    # for each transformed data frame, set the name
+    purrr::imap(
+      function(d, name) {
+        d |> dpurrr_mutate(\(d) list(name) |> purrr::set_names(names_to))
+      }
+    ) |>
+    # combine into single transformed data frame
+    reduce(c)
+}
+
 penguins_local |>
   dpurrr_to_list() |>
   dpurrr_split("species") |>
-  imap(
-    function(.d, name) {
-      .d |>
-        dpurrr_summarise(body_mass_g_min_max) |>
-        dpurrr_mutate(\(d) list(species = name))
-    }
-  ) |>
-  reduce(c) |>
+  map(\(.d) .d |> dpurrr_summarise(body_mass_g_min_max)) |>
+  dpurrr_combine("species") |>
   dpurrr_to_tibble() |>
   print()
 
 penguins_local |>
   dpurrr_to_list() |>
   dpurrr_split("species") |>
-  imap(
-    function(.d, name) {
-      .d |>
-        dpurrr_summarise(
-          \(acc, d) list(count = acc$count + 1),
-          .init = list(count = 0)
-        ) |>
-        dpurrr_mutate(\(d) list(species = name))
-    }
-  ) |>
-  reduce(c) |>
+  map(dpurrr_counter) |>
+  dpurrr_combine("species") |>
   dpurrr_to_tibble() |>
   print()
 
