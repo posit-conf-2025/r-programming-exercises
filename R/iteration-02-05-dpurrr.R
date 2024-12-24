@@ -13,6 +13,7 @@ penguins_local <-
   print()
 
 #' @param .data data frame or tibble
+#'
 #' @return unnamed list of named lists, i.e. transposed data frame
 dpurrr_to_list <- function(.data) {
   .data |>
@@ -21,6 +22,7 @@ dpurrr_to_list <- function(.data) {
 }
 
 #' @param .d unnamed list of named lists, i.e. transposed data frame
+#'
 #' @return tibble
 dpurrr_to_tibble <- function(.d) {
   .d |>
@@ -112,8 +114,7 @@ dpurrr_split <- function(.d, name) {
   d_name <- .d |> purrr::map(\(d) d[[name]]) |> unique() |> purrr::set_names()
 
   # for each element, keep rows that "contain" the name
-  d_name |>
-    purrr::map(\(x) .d |> purrr::keep(\(d) d[[name]] == x))
+  d_name |> purrr::map(\(x) .d |> purrr::keep(\(d) d[[name]] == x))
 }
 
 #' @param .nd named list of transposed data frames
@@ -129,8 +130,8 @@ dpurrr_combine <- function(.nd, name) {
         d |> dpurrr_mutate(\(d) list(id) |> purrr::set_names(name))
       }
     ) |>
-    # combine into single transposed data frame
-    reduce(c)
+    # reduce to single transposed data frame
+    purrr::reduce(c)
 }
 
 penguins_local |>
