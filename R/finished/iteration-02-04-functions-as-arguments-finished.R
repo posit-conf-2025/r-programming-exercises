@@ -2,6 +2,8 @@ library("conflicted")
 library("palmerpenguins")
 library("tidyverse")
 
+conflicts_prefer(palmerpenguins::penguins)
+
 ## Functions as arguments
 
 ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
