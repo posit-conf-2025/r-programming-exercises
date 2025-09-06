@@ -1,6 +1,9 @@
 library("here")
 library("rlang")
 library("palmerpenguins")
+library("conflicted")
+
+conflicts_prefer(palmerpenguins::penguins)
 
 # function without type checking
 to_z <- function(x, middle = 1) {

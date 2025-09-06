@@ -3,6 +3,8 @@ library("palmerpenguins")
 library("tidyverse")
 library("here")
 
+conflicts_prefer(palmerpenguins::penguins)
+
 ## Write out files
 
 # ?dplyr::group_nest(), ?stringr::str_glue(), ?readr::write_csv()

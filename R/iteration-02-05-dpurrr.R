@@ -5,6 +5,8 @@ library("palmerpenguins")
 library("dplyr")
 library("purrr")
 
+conflicts_prefer(palmerpenguins::penguins)
+
 # simplify penguins (Sorry Allison!)
 penguins_local <-
   penguins |>
