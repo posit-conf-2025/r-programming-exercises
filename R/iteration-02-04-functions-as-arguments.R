@@ -25,3 +25,21 @@ percent_labeller(c(0, 0.01, 0.1, 1))
 # add `scale_y_continuous()` to ecdf plot, using the `labels` argument
 ggplot(penguins, aes(x = bill_length_mm, color = species)) +
   stat_ecdf()
+
+## Declarative vs. Imperative programming
+
+original <- 1:4
+
+# declarative
+original |> map_dbl(\(x) 2 * x)
+
+# imperative
+double = numeric(length(original))
+for (i in seq_along(original)) {
+  double[i] = original[i] * 2
+}
+double
+
+# ultimate declarative
+2 * original
+
