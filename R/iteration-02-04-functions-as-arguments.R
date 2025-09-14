@@ -8,7 +8,7 @@ conflicts_prefer(palmerpenguins::penguins)
 
 ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
   geom_point() +
-  scale_color_discrete(labels = tolower) # tolower is a function
+  scale_color_discrete()
 
 tolower(c("Emma", "Ian"))
 
