@@ -5,11 +5,11 @@ library("here")
 library("fs")
 
 ## Adverb
-poss_read_csv <- possibly(read_csv, otherwise = NULL, quiet = FALSE)
+possibly_read_csv <- possibly(read_csv, otherwise = NULL, quiet = FALSE)
 
-poss_read_csv("not/a/file.csv")
+possibly_read_csv("not/a/file.csv")
 
-poss_read_csv(I("a, b\n 1, 2"), col_types = "dd")
+possibly_read_csv(I("a, b\n 1, 2"), col_types = "dd")
 
 ## File-reading example: handling failure
 
