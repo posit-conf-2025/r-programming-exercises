@@ -5,11 +5,11 @@ library("here")
 library("fs")
 
 ## Adverb
-poss_read_csv <- possibly(read_csv, otherwise = NULL, quiet = FALSE)
+possibly_read_csv <- possibly(read_csv, otherwise = NULL, quiet = FALSE)
 
-poss_read_csv("not/a/file.csv")
+possibly_read_csv("not/a/file.csv")
 
-poss_read_csv(I("a, b\n 1, 2"), col_types = "dd")
+possibly_read_csv(I("a, b\n 1, 2"), col_types = "dd")
 
 ## File-reading example: handling failure
 
@@ -37,11 +37,11 @@ data_party <-
   print()
 
 # modify read-function to return NULL, rather than throw error
-poss_read_excel <- possibly() # we do the rest
+possibly_read_excel <- possibly() # we do the rest
 
 # intermediate step - see which one failed
 paths_party |>
-  map(poss_read_excel) |>
+  map(possibly_read_excel) |>
   keep(is.null)
 
 ## Our Turn: re-implement `list_rbind()`
@@ -52,7 +52,7 @@ paths_party |>
 
 data_reimplemented <-
   paths_party |>
-  map(poss_read_excel) |>
+  map(possibly_read_excel) |>
   # keep(negate(is.null)) |>
   # imap(\(df, name) mutate(df, "year" := parse_number(name))) |>
   # reduce(rbind) |>
